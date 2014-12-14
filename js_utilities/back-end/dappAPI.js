@@ -1,77 +1,3 @@
-/* DappWsApi handles incoming requests from a websocket connection.
- *
- * See the ESRPC specification (draft) for details about request, 
- * response, and error objects.
- *
- * Params:
- * 
- * session - a session object. This is normally gotten by
- * instantiating this object as part of registering a callback
- * for new sockets. 
- * 
- * Example:
- * 
- * network.newWsCallback = function(sessionObj) {
- * 	 var api = new DappWsAPI(sessionObj);
- *	 sessionObj.api = api;
- *	 
- *   return function(request){
- *		return api.handle(request);
- *	};
- * }
- * 
- * The newWsCallback function wants a method returned to it
- * that handles incoming requests from this socket. You can
- * use the DappWsAPI.handle function for that.
- * 
- */
-function DappWsAPI() {
-	
-	var session;
-	var methods = {};
-	
-	// Called on incoming messages.
-	this.handle = function(req) {
-		
-		var method = methods[req.Method];
-		if (typeof(method) !== "function"){
-			return network.getWsErrorDetailed(E_NO_METHOD,"No handler for method: " + req.Method);
-		}
-		// If the params are not right, this should return
-		// an E_INVALID_PARAMS
-		var jsonResp = method(req.Params);
-		jsonResp.Method = req.Method;
-		jsonResp.Id = req.Id;
-		return jsonResp;
-	}
-	
-	// Use this to set a session object.
-	this.setSession(sessionObject){
-		session = sessionObject;
-	}
-	
-   /* You can register an api method here.
-    * 
-	* Params:
-	*
-	* name   - the method name. Note this is what you'll be calling
-	*          from the remote.
-	* method - a function
-	* 
-	* Note: There is no unregister method.
-	*/
-	this.registerMethod = function(name,method){
-		if(typeof(name) !== "string"){
-			throw new TypeError("API method name is not a string");
-		}
-		if(typeof(method) !== "function"){
-			throw new TypeError("API method is not a function");
-		}
-		methods[name] = fn;
-	}
-	
-};
-
 // This API will be for dapps, and should use the same names as ethereum uses imo.
 // It will be moved to the decerver core. <------- Don't use yet --------->
 function DappCore(){
@@ -95,7 +21,7 @@ function DappCore(){
 	}
 	
 	// The first four hex-digits (or two bytes) of the ipfs hash.
-	var ipfsHead = "0x1220";
+	var ipfsHeader = "1220";
 	
 	// Used internally to keep track of received events.
 	var eventCallbacks = {};
@@ -244,7 +170,7 @@ function DappCore(){
 		if(hash[1] === 'x'){
 			hash = hash.slice(2);
 		}
-		var fullHash = ipfsHead + hash;
+		var fullHash = "0x1220" + hash;
 		var fileObj = ipfs.GetBlock(fullHash);
 		
 		if(fileObj.Error !== "") {
@@ -279,7 +205,7 @@ function DappCore(){
 		}
 	}
 
-	// ************************ Helpers ************************
+	// ************************ Plumbing ************************
 	
 	// Listens to new blocks.
 	this.newBlock = function(event){
@@ -316,39 +242,7 @@ function DappCore(){
 		}
 	}
 
-	// Needs a unique Id to run. Normally that would be the id of
-	// the session that uses it.
-	this.run = function(uid){
-		// Subscribe to block events.
-		events.subscribe("monk","newBlock","", this.newBlock, uid);
-	}
+	// Subscribe to block events.
+	events.subscribe("monk","newBlock","", this.newBlock);
 
-}
-
-/*  This can be instantiated and run in order to start the 
- *  hello world dapp.
- */
-function HelloWorldDappWs(){
-	
-	// We overwrite the new websocket session callback with this function. It will
-	// create a new api and tie it to the session object.
-	//
-	// The newWsCallback function must return a function that is called every time
-	// a new request arrives on the channel, which is set to be the handlers 'handle'
-	// function.
-	network.newWsCallback = function(sessionObj) {
-		// Instantiate the dappcore (used to make calls).
-		var dc = new DappCore();
-		// Ins
-		var api = new TestAPI(sessionObj);
-		sessionObj.api = api;
-		return function(request){
-			return api.handle(request);
-		};
-	}
-
-	// This is called when a websocket session is closed. We need to tell it to stop 
-	// listening for events.
-	network.deleteWsCallback = function(sessionObj) {
-	}
 }

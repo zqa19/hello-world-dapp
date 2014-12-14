@@ -3,8 +3,8 @@
  *
  * This is the javascript for a hello world dapp that runs in Eris' DeCerver.
  * It lets you run a typical Ethereum-style 'namereg' contract. You will register
- * your public address as a , but storing
- * large files using IPFS (Interplanetary Filesystem) instead of a string.
+ * your public address as a , but storing large files using IPFS 
+ * (Interplanetary Filesystem) instead of a string.
  *																				  
  * Licence: https://github.com/eris-ltd/hello-world-dapp/blob/master/LICENSE.txt             
  *																				  
@@ -13,24 +13,33 @@
 // ************************************* INIT **************************************
 
 // Socket object.
-var esrpc;
+
+//var esrpc;
+
+var sender;
 
 window.onload = function() {
 	console.log("hello");
+	
+	sender = new HttpAPI();
+	var txt = sender.send("GET", "http://localhost:3000/http/helloworld");
+	document.getElementById('input').value = txt;//JSON.stringify(JSON.parse(txt),null,"\t");  
+/*	
 	// Set the websocket connection up.
-	esrpc = new WebSocketAPI();
+	esrpc = new WebsocketAPI("ws://localhost:3000/ws/helloworld");
 
 	// Register a callback for TestJS (the function we're calling)
 	esrpc.registerMessageCallback("TestJS", function(response){
 		document.getElementById('output').innerHTML = response.Result;
 	});
 
-	esrpc.start("ws://localhost:3000/ws/helloworld");
+	esrpc.start();
 
 	// When the window is unloaded.
 	window.onunload = function() {
 		esrpc.shutdown();
 	};
+*/
 };
 
 // Send the test data to 
@@ -47,15 +56,20 @@ function testJS(){
 
 // The 'eris socket-based rpc object. This is used to pass messages over a regular 
 // websocket connection, and to handle incoming messages.
-var WebSocketAPI = function(){
+//
+// Params: the address you call in order to establish a websocket connection 
+// (usually ws://localhost:3000/ws/dappname)
+var WebsocketAPI = function(socketAddr){
 
 	// The websocket connection itself
 	var conn = null;
 	// Used to handle received rpc events
 	var messageCallbacks = {};
+	// The endpoint for the socket
+	var socketAddress = socketAddr;
 
 	// Create the socket.
-	this.start = function(socketAddress){
+	this.start = function(){
 		if (window["WebSocket"]) {
 		    this.conn = new WebSocket(socketAddress);
 		    // Event listeners
@@ -97,7 +111,6 @@ var WebSocketAPI = function(){
 			delete messageCallbacks[name];
 		}
 	}
-
 	
  	//  The event handler receives events from decerver. The response passed to each handler
  	//  is a json rpc object:
@@ -172,6 +185,27 @@ var WebSocketAPI = function(){
 		var sreq = JSON.stringify(req);
 		console.log(sreq);
 		this.conn.send(sreq);
+	}
+}
+
+// The placeholder HTTP api is used to send http messages to the decerver.
+// You will probably want to replace this with your own code.
+// Params: the endpoint (usually http://localhost:3000/http/dappname)
+var HttpAPI = function(){
+
+	this.send = function(method, url) {
+		var xmlHttp = new XMLHttpRequest();
+		xmlHttp.open("GET", url, false);
+		xmlHttp.send();
+		return xmlHttp.responseText;
+	}
+
+	this.sendAsync = function(method, url, callbackFn) {
+		var xmlHttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = callbackFn;
+		xmlHttp.open(method, url, true);
+		xmlhttp.send();
+		return;
 	}
 }
 
