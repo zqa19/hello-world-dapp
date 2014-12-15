@@ -1,86 +1,13 @@
-/* DappWsApi handles incoming requests from a websocket connection.
- *
- * See the ESRPC specification (draft) for details about request, 
- * response, and error objects.
- *
- * Params:
- * 
- * session - a session object. This is normally gotten by
- * instantiating this object as part of registering a callback
- * for new sockets. 
- * 
- * Example:
- * 
- * network.newWsCallback = function(sessionObj) {
- * 	 var api = new DappWsAPI(sessionObj);
- *	 sessionObj.api = api;
- *	 
- *   return function(request){
- *		return api.handle(request);
- *	};
- * }
- * 
- * The newWsCallback function wants a method returned to it
- * that handles incoming requests from this socket. You can
- * use the DappWsAPI.handle function for that.
- * 
- */
-function DappWsAPI() {
-	
-	var session;
-	var methods = {};
-	
-	// Called on incoming messages.
-	this.handle = function(req) {
-		
-		var method = methods[req.Method];
-		if (typeof(method) !== "function"){
-			return network.getWsErrorDetailed(E_NO_METHOD,"No handler for method: " + req.Method);
-		}
-		// If the params are not right, this should return
-		// an E_INVALID_PARAMS
-		var jsonResp = method(req.Params);
-		jsonResp.Method = req.Method;
-		jsonResp.Id = req.Id;
-		return jsonResp;
-	}
-	
-	// Use this to set a session object.
-	this.setSession(sessionObject){
-		session = sessionObject;
-	}
-	
-   /* You can register an api method here.
-    * 
-	* Params:
-	*
-	* name   - the method name. Note this is what you'll be calling
-	*          from the remote.
-	* method - a function
-	* 
-	* Note: There is no unregister method.
-	*/
-	this.registerMethod = function(name,method){
-		if(typeof(name) !== "string"){
-			throw new TypeError("API method name is not a string");
-		}
-		if(typeof(method) !== "function"){
-			throw new TypeError("API method is not a function");
-		}
-		methods[name] = fn;
-	}
-	
-};
 
-// This API will be for dapps, and should use the same names as ethereum uses imo.
-// It will be moved to the decerver core. <------- Don't use yet --------->
-function DappCore(){
+// This API is for dapps (and should use the same names as ethereum uses for blockchain
+// stuff imo).
+function DappCore(blockchain){
 	
 	// *************************** Variables *************************
 	
 	// The blockchain we're using (currently monk).
-	// TODO provide through constructor and make a validity test.
-	var bc = monk;
+	// TODO validate the module interface.
+	var bc = blockchain;
 	
 	// This is the root contract of any given dapp, as provided by the
 	// dapps package.json. It is bound to the runtime under the name 
@@ -95,7 +22,7 @@ function DappCore(){
 	}
 	
 	// The first four hex-digits (or two bytes) of the ipfs hash.
-	var ipfsHead = "0x1220";
+	var ipfsHead = "1220";
 	
 	// Used internally to keep track of received events.
 	var eventCallbacks = {};
@@ -135,15 +62,70 @@ function DappCore(){
 
 	// Gets you the account with address 'accountAddress'
 	this.account = function(accountAddress){
-		var sa = bc.Account(accountAddress);
-		if (sa.Error !== ""){
+		var a = bc.Account(accountAddress);
+		if (a.Error !== ""){
 			return null;
 		} else {
-			return sa.Data;
+			return a.Data;
 		}
 	}
 
-	// Sends a transaction to the blockchain.
+	this.msg = function(recipient,txData){
+
+		var msgRecipe = {
+			"Success" : false,
+			"Hash" : "",
+			"Error" : ""
+		};
+
+		var m = bc.Msg(recipient,txData);
+		if (m.Error !== ""){
+			msgRecipe.Error = m.Error;
+		} else {
+			msgRecipe.Success = true;
+			msgRecipe.Hash = m.Data.Hash;
+		}
+		return msgRecipe;
+	}
+
+	this.endow = function(recipient,sum){
+
+		var edRecipe = {
+			"Success" : false,
+			"Hash" : "",
+			"Error" : ""
+		};
+
+		var e = bc.Msg(recipient,txData);
+		if (e.Error !== ""){
+			edRecipe.Error = e.Error;
+		} else {
+			edRecipe.Success = true;
+			edRecipe.Hash = e.Data.Hash;
+		}
+		return msgRecipe;
+	}
+
+	this.script = function(script,language){
+
+		var scRecipe = {
+			"Compiled" : false,
+			"Hash" : "",
+			"Address" : "",
+			"Error" : ""
+		};
+
+		var s = bc.Script(recipient,txData);
+		if (s.Error !== ""){
+			edRecipe.Error = s.Error;
+		} else {
+			edRecipe.Success = true;
+			edRecipe.Hash = s.Data.Hash;
+		}
+		return msgRecipe;
+	}
+
+	// Sends a "full" transaction to the blockchain.
 	this.transact = function(recipientAddress,value,gas,gascost,data){
 		
 		var txRecipe = {
@@ -323,32 +305,9 @@ function DappCore(){
 		events.subscribe("monk","newBlock","", this.newBlock, uid);
 	}
 
-}
-
-/*  This can be instantiated and run in order to start the 
- *  hello world dapp.
- */
-function HelloWorldDappWs(){
-	
-	// We overwrite the new websocket session callback with this function. It will
-	// create a new api and tie it to the session object.
-	//
-	// The newWsCallback function must return a function that is called every time
-	// a new request arrives on the channel, which is set to be the handlers 'handle'
-	// function.
-	network.newWsCallback = function(sessionObj) {
-		// Instantiate the dappcore (used to make calls).
-		var dc = new DappCore();
-		// Ins
-		var api = new TestAPI(sessionObj);
-		sessionObj.api = api;
-		return function(request){
-			return api.handle(request);
-		};
+	this.shutdown = function(uid){
+		// Unsubscribe to block events.
+		events.unsubscribe("monk","newBlock", uid);
 	}
 
-	// This is called when a websocket session is closed. We need to tell it to stop 
-	// listening for events.
-	network.deleteWsCallback = function(sessionObj) {
-	}
 }

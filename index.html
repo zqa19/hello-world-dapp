@@ -10,23 +10,41 @@
 
 <body>
 	<div>
-		<h3>The testpage</h3>
+		<h1>Hello World</h1>
 
-		<!-- The text area -->
-		<div style="float: left; display: block; position: relative;">
-			<textarea id="input" rows="15" cols="80"></textarea>
+		<div style="float: left; display: block; position: relative; margin-right: 12px">
+			<h3>Add file</h3>
+
+			Name <input type="text" id="filenameAdd"><br>
+
+			<!-- text area -->
+			<div style="float: left; display: block; position: relative; margin-right: 12px">Data</div>
+			<div style="float: left; display: block; position: relative;">
+				<textarea id="input" rows="15" cols="80"></textarea>
+			</div>
+
+			<!-- The button -->
+			<div style="float: left; display: block; position: relative; clear: both; margin-top: 3px;">
+				<button type="button" onclick="addFile();">Submit</button>
+			</div>
 		</div>
 
-		<!-- The button -->
-		<div style="float: left; display: block; position: relative; clear: both; margin-top: 3px;">
-			<button type="button" onclick="testJS();">Test</button>
-		</div>
+		<div style="float: left; display: block; position: relative; margin-right: 12px">
+			<h3>Get file</h3>
 
-		<!-- Where the result is pasted. -->
-		<div id="output" style="float: left; display: block; position: relative; clear: both; border: solid 1px; margin-top: 4px; width: 575px;">
-			Here's where it'll end up.
-		</div>
+			Name <input type="text" id="filenameGet"><br>
 
+			<!-- text area -->
+			<div style="float: left; display: block; position: relative; margin-right: 12px">Data</div>
+			<div style="float: left; display: block; position: relative;">
+				<textarea id="output" rows="15" cols="80"></textarea>
+			</div>
+
+			<!-- The button -->
+			<div style="float: left; display: block; position: relative; clear: both; margin-top: 3px;">
+				<button type="button" onclick="getFile();">Get</button>
+			</div>
+		</div>
 	</div>
 
 	<script src="js/helloworld.js" type="text/javascript"></script>
