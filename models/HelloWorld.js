@@ -12,12 +12,7 @@ function HelloWorldDapp(){
 
 	this.run = function(){
 		Println("Starting helloworld.");
-		// We overwrite the new websocket session callback with this function. It will
-		// create a new api and tie it to the session object.
-		//
-		// The newWsCallback function must return a function that is called every time
-		// a new request arrives on the channel, which is set to be the handlers 'handle'
-		// function.
+		// We overwrite the new incoming http callback with this function.
 		network.incomingHttpCallback = function(request) {
 			return api.handle(request);
 		}
