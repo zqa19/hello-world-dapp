@@ -58,6 +58,7 @@ function addFile(){
 	
 	if(body === ""){
 		window.alert("There is nothing in the file input text area!");
+		return;
 	}
 
 	// We send a POST request to the base url that ends with '/add?filename=thefilename'
