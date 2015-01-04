@@ -1,3 +1,5 @@
+Copyright (c) 2014-2015, Eris Industries Limited. All rights reserved.
+
 GNU GENERAL PUBLIC LICENSE
 
 Version 3, 29 June 2007
