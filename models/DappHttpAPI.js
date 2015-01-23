@@ -5,136 +5,67 @@
  */
 function DappHttpAPI() {
 	
-	var methods = {};
+	var F_RES = "files";
+
+	var handlers = {};
 
 	// Called on incoming messages.
 	this.handle = function(httpReq) {
 		
-		// Split the URL and slice. It starts with '/' by default.
-		var reqSplit = httpReq.URL.Path.slice(1).split('/');
-		// This will be ["http","helloworld", "themethod"] normally.
+		// Get an url object.
+		var urlObj = network.parseUrl(httpReq);
 		
-		// Just gonna 400 all of these.
-		if(reqSplit.length != 3){
-			return {
-				"Status" : 400,
-				"Header" : {},
-				"Body" : "Wrong number of arguments"
-			};
+		if(urlObj.error !== ""){
+			network.getHttpResponse(400,{},urlObj.error);
 		}
-
-		// Get the method, which is the last segment of the path.
-		var method = reqSplit[2];
 		
-		// We need to get the parameters.
-		var params = httpReq.URL.RawQuery.split('&');
+		if(urlObj.path[0] !== F_RES){
+			network.getHttpResponse(400,{},"No resource with name: " + urlObj.path[0]);
+		}
 
 		// This is where the result will be stored.
 		var result;
-
+		var method = httpReq.Method;
 		// Now check if the person wants to add a file.
-		if(method === "add"){
-			// For add, we'll expecting the method name to be 'add', and the data is in the body.
-			if(httpReq.Method !== "POST"){
-				return {
-					"Status" : 400,
-					"Header" : {},
-					"Body" : "We only allow POST method for add. Method used: " + httpReq.Method
-				};
+		if(method === "POST"){
+			if(urlObj.path.length !== 1){
+				return network.getHttpResponse(400,{},"Malformed request: Bad url.");
 			}
-			// Only one param 'filename=thefilename'
-			if(params.length !== 1){
-				return {
-					"Status" : 400,
-					"Header" : {},
-					"Body" : "Wrong number of params for 'add'"
-				};
+			var filename = urlObj.options.name;
+			if(filename === undefined){
+				return network.getHttpResponse(400,{},"Malformed request: No filename provided.");
 			}
-			// This is the parameter
-			var param = params[0];
-
-			// Make sure the request says: filename=thefilename, and that there is a filename.
-			var pArr = param.split("=");
-			if(pArr.length !== 2 || pArr[0] !== "filename" || pArr[1] == ""){
-				return {
-					"Status" : 400,
-					"Header" : {},
-					"Body" : "Malformed parameter for 'add', should be 'filename=thefilename'. Sent : " + param
-				};
-			}
-
-			// Phew
-
 			// Now send the filename and data to the add method.
-			var result = methods.add(pArr[1],httpReq.Body);
+			result = handlers.add(filename,httpReq.Body);
 			
-		} else if (method === "get") {
-
-			// Same stuff as with the 'add' method.
-			if(httpReq.Method !== "GET"){
-				return {
-					"Status" : 400,
-					"Header" : {},
-					"Body" : "We only allow the GET method for get."
-				};
+		} else if (method === "GET") {
+			if(urlObj.path.length !== 2){
+				return network.getHttpResponse(400,{},"Malformed request: bad url.");
 			}
-
-			if(params.length !== 1){
-				return {
-					"Status" : 400,
-					"Header" : {},
-					"Body" : "Wrong number of params for 'get'."
-				};
-			}
-
-			// This is the parameter
-			var param = params[0];
-			// Make sure the request says: filename=thefilename, and that there is a filename.
-			var pArr = param.split("=");
-			if(pArr.length !== 2 || pArr[0] !== "filename" || pArr[1] == ""){
-				return {
-					"Status" : 400,
-					"Header" : {},
-					"Body" : "Malformed parameter for 'get', should be 'filename=thefilename'. Sent : " + param
-				};
-			}
-
 			// Run the 'get' method.
-			result = methods.get(pArr[1]);
+			result = handlers.get(urlObj.path[1]);
 		} else {
-			// If method isn't 'get' or 'add' - just return an error.
-			return {
-				"Status" : 400,
-				"Header" : {},
-				"Body" : "No method named:" + method
-			};
+			return network.getHttpResponse(400,{},"Illegal request: " + method);
 		}
-
 		// Generate a new http response.
-		var resp = network.getHttpResponse();
-		// Set the status to 200 and put the result in the body.
-		resp.Status = 200;
-		resp.Body = result;
-		// Return the response.
-		return resp;
+		return network.getHttpResponse(200,{},result);
 	}
 
 	// Add a file with name 'filename' and the data 'data'.
-	methods.add = function(filename,data){
+	handlers.add = function(filename,data){
 		var fName = sutil.stringToHex(filename);
 		var fHash = writeFile(data);
-
 		var txData = [];
 		txData.push(fName);
 		txData.push(fHash);
-		msg(txData)
+		msg(txData);
 		commit();
 
 		return "";
 	}
 
 	// Get a file with name 'filename'
-	methods.get = function(name){
+	handlers.get = function(name){
 		var nameHex = sutil.stringToHex(name);
 		var fHash = storageAt(nameHex);
 		Println("Getting the storage for filename:" + nameHex);
@@ -168,6 +99,7 @@ function DappHttpAPI() {
 			msgRecipe.Error = m.Error;
 		} else {
 			msgRecipe.Success = true;
+			Printf(m);
 			msgRecipe.Hash = m.Data.Hash;
 		}
 		return msgRecipe;
@@ -203,7 +135,7 @@ function DappHttpAPI() {
 	// used (it's always 0x12), and the second is the length of the
 	// hash (it is always 0x20). See DappCore.ipfsHeader.
 	function writeFile(data) {
-		var hashObj = ipfs.PushBlockString(data);
+		var hashObj = ipfs.PushBlock(data);
 		if(hashObj.Error !== "") {
 			return "";
 		} else {
