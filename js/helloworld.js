@@ -11,7 +11,7 @@
  */
 
 
-var baseUrl = "http://localhost:3000/http/helloworld"
+var baseUrl = "/http/helloworld"
 
 // The placeholder HTTP api is used to send http messages to the decerver.
 // You will probably want to replace this with your own code.
