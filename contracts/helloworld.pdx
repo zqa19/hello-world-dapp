@@ -3,6 +3,6 @@
 #File Deployment
 !{TEST
 deploy:
-	"./test.lll" => {{TEST}}
+	"./test.lll" => {{ROOT}}
 !}TEST
 
