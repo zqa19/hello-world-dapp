@@ -203,7 +203,7 @@ function DappHttpAPI() {
 	// used (it's always 0x12), and the second is the length of the
 	// hash (it is always 0x20). See DappCore.ipfsHeader.
 	function writeFile(data) {
-		var hashObj = ipfs.PushBlockString(data);
+		var hashObj = ipfs.PushFileData(data);
 		if(hashObj.Error !== "") {
 			return "";
 		} else {
@@ -218,7 +218,7 @@ function DappHttpAPI() {
 			hash = hash.slice(2);
 		}
 		var fullHash = "1220" + hash;
-		var fileObj = ipfs.GetBlock(fullHash);
+		var fileObj = ipfs.GetFile(fullHash,false);
 		
 		if(fileObj.Error !== "") {
 			return "";
