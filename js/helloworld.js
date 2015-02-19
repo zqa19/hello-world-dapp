@@ -11,7 +11,11 @@
  */
 
 
+<<<<<<< HEAD
 var baseUrl = "http://localhost:3000/apis/helloworld"
+=======
+var baseUrl = "/http/helloworld"
+>>>>>>> master
 
 // The placeholder HTTP api is used to send http messages to the decerver.
 var HttpAPI = function(){
