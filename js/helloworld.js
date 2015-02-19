@@ -11,7 +11,7 @@
  */
 
 
-var baseUrl = "http://localhost:3000/helloworld"
+var baseUrl = "http://localhost:3000/apis/helloworld"
 
 // The placeholder HTTP api is used to send http messages to the decerver.
 var HttpAPI = function(){
@@ -48,9 +48,12 @@ var	sender = new HttpAPI();
 
 function getFile(){
 	var fName = document.getElementById('filenameGet').value;
-	sender.sendAsync("GET", baseUrl + "/files/" + fName, null, function(request) {
-		if (request.status === 200) {
-	        document.getElementById('output').value = data;
+	sender.sendAsync("GET", baseUrl + "/files/" + fName, null, function(re) {
+		if (re.status === 200) {
+			console.log(re);
+			var body = re.response;
+			body = JSON.parse(body);
+	        document.getElementById('output').value = body.data;
 	    } else {
 			document.getElementById('output').value = "File not found";
 		}
@@ -61,12 +64,14 @@ function addFile(){
 	var fName = document.getElementById('filenameAdd').value;
 	var body = document.getElementById('input').value;
 	
-	if(body === ""){
-		window.alert("There is nothing in the file input text area!");
+	if(body === "" || fName === ""){
+		window.alert("You must provide a file name and some data.");
 		return;
 	}
 
-	sender.sendAsync("POST", baseUrl + "/files/?nme=" + fName, body, function(request) {
+	body = '{ "name" : "' + fName + '", "data" : "' + body + '"}';
+
+	sender.sendAsync("POST", baseUrl + "/files", body, function(request) {
 		if (request.status === 200) {
 	        window.alert("File sent! You can now get it by its name.");
 	    } else {
