@@ -11,11 +11,13 @@
  */
 
 
+<<<<<<< HEAD
+var baseUrl = "http://localhost:3000/apis/helloworld"
+=======
 var baseUrl = "/http/helloworld"
+>>>>>>> master
 
 // The placeholder HTTP api is used to send http messages to the decerver.
-// You will probably want to replace this with your own code.
-// Params: the endpoint (usually http://localhost:3000/http/dappname)
 var HttpAPI = function(){
 
 	this.send = function(method, url, body) {
@@ -28,11 +30,18 @@ var HttpAPI = function(){
 		return xmlHttp.responseText;
 	}
 
-	this.sendAsync = function(method, url, callbackFn) {
+	this.sendAsync = function(method, url, body, callbackFn) {
 		var xmlHttp = new XMLHttpRequest();
-		xmlhttp.onreadystatechange = callbackFn;
+		xmlHttp.onreadystatechange = function(){
+			if (xmlHttp.readyState === 4){
+				callbackFn(xmlHttp);
+			}
+		};
 		xmlHttp.open(method, url, true);
-		xmlhttp.send();
+		if(typeof(body) === "undefined"){
+			body = null;
+		}
+		xmlHttp.send(body);
 		return;
 	}
 }
@@ -41,30 +50,38 @@ var HttpAPI = function(){
 
 var	sender = new HttpAPI();
 
-window.onload = function() {
-	console.log("Hello from hello world dapp!");
-};
-
-
 function getFile(){
 	var fName = document.getElementById('filenameGet').value;
-	var file = sender.send("GET", baseUrl + "/get?filename=" + fName, null);
-	document.getElementById('output').value = file;
+	sender.sendAsync("GET", baseUrl + "/files/" + fName, null, function(re) {
+		if (re.status === 200) {
+			console.log(re);
+			var body = re.response;
+			body = JSON.parse(body);
+	        document.getElementById('output').value = body.data;
+	    } else {
+			document.getElementById('output').value = "File not found";
+		}
+	});
 };
 
 function addFile(){
 	var fName = document.getElementById('filenameAdd').value;
 	var body = document.getElementById('input').value;
 	
-	if(body === ""){
-		window.alert("There is nothing in the file input text area!");
+	if(body === "" || fName === ""){
+		window.alert("You must provide a file name and some data.");
 		return;
 	}
 
-	// We send a POST request to the base url that ends with '/add?filename=thefilename'
-	// add is the method name, and file name in the query. Body is the actual file data.
-	// We don't worry about headers and stuff now (although we should).
-	var txt = sender.send("POST", baseUrl + "/add?filename=" + fName, body);
-	window.alert("File sent! You can now get it by its name.");
+	body = '{ "name" : "' + fName + '", "data" : "' + body + '"}';
+
+	sender.sendAsync("POST", baseUrl + "/files", body, function(request) {
+		if (request.status === 200) {
+	        window.alert("File sent! You can now get it by its name.");
+	    } else {
+			window.alert("Failed to add file:\n" + request.responseText);
+		}
+	});
+
 };
 
