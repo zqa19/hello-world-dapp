@@ -11,7 +11,7 @@
  */
 
 
-var baseUrl = "http://localhost:3000/apis/helloworld"
+var baseUrl = "/apis/helloworld"
 
 // The placeholder HTTP api is used to send http messages to the decerver.
 var HttpAPI = function(){
@@ -75,7 +75,7 @@ function addFile(){
 	sender.sendAsync("POST", baseUrl + "/files", JSON.stringify(jsonObj), function(request) {
 		if (request.status === 200) {
 	        window.alert("File sent! You can now get it by its name.");
-	    } else {
+		} else {
 			window.alert("Failed to add file:\n" + request.responseText);
 		}
 	});
