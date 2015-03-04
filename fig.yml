@@ -8,7 +8,8 @@ ipfs:
     - "4001:4001"
     - "8080:8080"
 
-helloworld:
+# Create a Hello World instance for creating the blockain.
+helloworldchain:
   build: .
   links:
    - compilers
@@ -21,6 +22,38 @@ helloworld:
   environment:
    - CONTAINERS=true
 
+# Create a Hello World instance for writing data.
+helloworldwrite:
+  build: .
+  links:
+   - compilers
+   - ipfs
+
+  ports:
+   # for debugging
+   - "3001:3000"
+
+  environment:
+   - CONTAINERS=true
+   - BLOCKCHAIN_ID
+   - ROOT_CONTRACT
+
+# Create a Hello World instance for reading data.
+helloworldread:
+  build: .
+  links:
+   - compilers
+   - ipfs
+
+  ports:
+   # for debugging
+   - "3002:3000"
+
+  environment:
+   - CONTAINERS=true
+   - BLOCKCHAIN_ID
+   - ROOT_CONTRACT
+
 seleniumhub:
   image: selenium/hub
   expose:
@@ -31,7 +64,8 @@ seleniumnode:
 #  image: selenium/node-chrome-debug
   links:
    - seleniumhub:hub
-   - helloworld
+   - helloworldwrite
+   - helloworldread
 
   # Attach VNC to this port for debugging.  The password is 'secret'.
   ports:
