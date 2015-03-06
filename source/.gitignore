@@ -1,0 +1,6 @@
+.heroku
+.profile.d
+Procfile
+node_modules
+node-v*
+vendor

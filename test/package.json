@@ -1,0 +1,15 @@
+{
+  "description": "Hello World test",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eris-ltd/hello-world-dapp"
+  },
+  "dependencies": {
+    "nightwatch": "^0.5.36",
+    "supervisor": "^0.6.0"
+  },
+  "scripts": {
+    "start": "supervisor --no-restart-on exit node_modules/nightwatch/bin/nightwatch",
+    "test": "nightwatch"
+  }
+}
