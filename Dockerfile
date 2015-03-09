@@ -8,5 +8,6 @@ RUN chown --recursive $user /home/$user
 
 USER $user
 
+EXPOSE 50505
 VOLUME /home/$user/.decerver
 CMD /home/$user/.decerver/source/cmd.sh

@@ -9,7 +9,7 @@ ipfs:
     - "8080:8080"
 
 # Create a Hello World instance for creating the blockain.
-helloworldchain:
+helloworldmaster:
   build: .
   links:
    - compilers
@@ -28,6 +28,7 @@ helloworldwrite:
   links:
    - compilers
    - ipfs
+   - helloworldmaster
 
   ports:
    # for debugging
@@ -37,6 +38,7 @@ helloworldwrite:
    - CONTAINERS=true
    - BLOCKCHAIN_ID
    - ROOT_CONTRACT
+   - REMOTE_HOST
 
 # Create a Hello World instance for reading data.
 helloworldread:
@@ -44,6 +46,7 @@ helloworldread:
   links:
    - compilers
    - ipfs
+   - helloworldmaster
 
   ports:
    # for debugging
@@ -53,6 +56,7 @@ helloworldread:
    - CONTAINERS=true
    - BLOCKCHAIN_ID
    - ROOT_CONTRACT
+   - REMOTE_HOST
 
 seleniumhub:
   image: selenium/hub
