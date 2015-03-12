@@ -13,22 +13,22 @@ if [ -z $BLOCKCHAIN_ID ]; then
   BLOCKCHAIN_ID=$(epm plop chainid)
   ROOT_CONTRACT=$(epm plop vars | cut -d : -f 2)
 
-  epm config fetch_port:${FETCH_PORT:=50505}
+  epm config fetch_port:50505
 else
+  mv package.json /tmp/
+
+  jq '.module_dependencies[0].data |= . * {peer_server_address: "helloworldmaster:15256", blockchain_id: "'$BLOCKCHAIN_ID'", root_contract: "'$ROOT_CONTRACT'"}' /tmp/package.json \
+    > package.json
+
   cd contracts
-  sleep 5
-  epm fetch --checkout --name helloworld helloworldmaster:${FETCH_PORT:=50505}
+  sleep 60
+  epm fetch --checkout --name helloworld helloworldmaster:50505
   cd ..
   epm install --no-new . helloworld
 fi
 
 echo "Configuring package.json with BLOCKCHAIN_ID ($BLOCKCHAIN_ID) and "
 echo "ROOT_CONTRACT ($ROOT_CONTRACT)."
-
-mv package.json /tmp/
-
-jq '.module_dependencies[0].data |= . * {BLOCKCHAIN_ID: "'$BLOCKCHAIN_ID'", ROOT_CONTRACT: "'$ROOT_CONTRACT'"}' /tmp/package.json \
-  > package.json
 
 # Configure EPM.
 

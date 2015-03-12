@@ -1,5 +1,7 @@
 #!/bin/sh
-
+fig kill helloworldmaster helloworldwrite
+fig rm --force helloworldmaster helloworldwrite
+fig build helloworldmaster helloworldwrite
 fig up -d helloworldmaster
 helloworldmaster=$(fig ps -q helloworldmaster)
 

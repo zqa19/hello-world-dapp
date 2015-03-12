@@ -15,6 +15,9 @@ helloworldmaster:
    - compilers
    - ipfs
 
+  expose:
+   - "50505"
+   - "15256"
   ports:
    # for debugging
    - "3000:3000"
