@@ -19,6 +19,7 @@ else
   sleep 5
   epm fetch --checkout --name helloworld helloworldmaster:${FETCH_PORT:=50505}
   cd ..
+  epm install --no-new . helloworld
 fi
 
 echo "Configuring package.json with BLOCKCHAIN_ID ($BLOCKCHAIN_ID) and "
