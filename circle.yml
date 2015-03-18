@@ -5,7 +5,7 @@ machine:
 dependencies:
   override:
     - echo "Don't run npm install."
-    - sudo pip install -U fig
+    - sudo pip install -U docker-compose
 
 test:
   override:

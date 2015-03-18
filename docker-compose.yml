@@ -8,16 +8,31 @@ ipfs:
     - "4001:4001"
     - "8080:8080"
 
-# Create a Hello World instance for creating the blockain.
+# Run a blockchain only on the master.
 helloworldmaster:
+  image: eris/erisdb
+
+  expose:
+   - "15254"
+   - "15256"
+
+  environment:
+   - MASTER=true
+   - SERVE_GBLOCK=true
+   - FETCH_PORT=15256
+
+# Create a Hello World instance for writing data.
+helloworldwrite:
   build: .
+
   links:
    - compilers
    - ipfs
+   - helloworldmaster
 
   expose:
-   - "50505"
-   - "15256"
+   - "15254"
+
   ports:
    # for debugging
    - "3000:3000"
@@ -25,41 +40,26 @@ helloworldmaster:
   environment:
    - CONTAINERS=true
 
-# Create a Hello World instance for writing data.
-helloworldwrite:
+# Create a Hello World instance for reading data.
+helloworldread:
   build: .
+
   links:
    - compilers
    - ipfs
    - helloworldmaster
+   - helloworldwrite
+
+  expose:
+   - "15254"
 
   ports:
    # for debugging
    - "3001:3000"
 
   environment:
-   - CONTAINERS=true
-   - BLOCKCHAIN_ID
    - ROOT_CONTRACT
-   - REMOTE_HOST
-
-# Create a Hello World instance for reading data.
-helloworldread:
-  build: .
-  links:
-   - compilers
-   - ipfs
-   - helloworldmaster
-
-  ports:
-   # for debugging
-   - "3002:3000"
-
-  environment:
    - CONTAINERS=true
-   - BLOCKCHAIN_ID
-   - ROOT_CONTRACT
-   - REMOTE_HOST
 
 seleniumhub:
   image: selenium/hub
