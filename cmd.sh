@@ -24,7 +24,8 @@ epm --log ${LOG_LEVEL:=3} run & sleep 2 && kill $(epm plop pid)
 #   to hostname via env vars so that the host which the peer broadcasts will operate
 #   properly and the peers can find each other as linked containers).
 key_session="$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 10 | tr -d '\n' ; echo)"
-epm config key_session:${KEY_SESSION:=key_session} local_port:15254
+epm config key_session:${KEY_SESSION:=$key_session}
+epm config local_host:0.0.0.0 local_port:15254
 
 # when connecting to a remote chain these are the necessary minimums
 remote_host="helloworldmaster"
@@ -40,7 +41,7 @@ epm --log ${LOG_LEVEL:=3} run & sleep 2 && kill $(epm plop pid)
 
 # Capture the primary variables
 BLOCKCHAIN_ID=$(epm plop chainid)
-if [ -z $ROOT_CONTRACT ]
+if [ -z $ROOT_CONTRACT ] || [ $ROOT_CONTRACT == "" ]
 then
   ROOT_CONTRACT=$(epm plop vars | cut -d : -f 2)
 fi
@@ -59,6 +60,11 @@ echo ""
 echo "My package.json now looks like this."
 # this is here for debugging, feel free to remove
 cat ~/.decerver/dapps/helloworld/package.json
+
+echo ""
+echo ""
+echo "My chain config now looks like this."
+epm plop config
 
 # put the helloworld DApp in focus
 echo ""

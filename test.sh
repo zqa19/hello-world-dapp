@@ -15,7 +15,7 @@ sleep 30 # give the writer time to catch up with master and deploy contracts
 
 # grab the root contract from the writer
 helloworldwrite=$(docker-compose ps -q helloworldwrite)
-export ROOT_CONTRACT=$(docker exec $helloworldwrite echo $ROOT_CONTRACT)
+export ROOT_CONTRACT=$(docker exec $helloworldwrite epm plop vars | cut -d : -f 2)
 
 # helpful for debugging
 echo ""
@@ -26,7 +26,6 @@ echo ""
 
 # start the reader
 docker-compose up --no-recreate helloworldread
-
 # @nodeguy not sure how you want to run the selenium tests, but its all ready for you now
 # docker-compose up -d --no-recreate seleniumnode
 # docker-compose run helloworldtest
