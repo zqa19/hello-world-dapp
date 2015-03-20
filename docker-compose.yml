@@ -1,8 +1,8 @@
 compilers:
-  image: eris/compilers
+  image: eris/compilers:latest
 
 ipfs:
-  image: eris/ipfs
+  image: eris/ipfs:latest
 
   ports:
     - "4001:4001"
@@ -10,7 +10,7 @@ ipfs:
 
 # Run a blockchain only on the master.
 helloworldmaster:
-  image: eris/erisdb
+  image: eris/erisdb:latest
 
   expose:
    - "15254"
@@ -62,13 +62,13 @@ helloworldread:
    - CONTAINERS=true
 
 seleniumhub:
-  image: selenium/hub
+  image: selenium/hub:latest
   expose:
    - "4444"
 
 seleniumnode:
-  image: selenium/node-chrome
-#  image: selenium/node-chrome-debug
+  image: selenium/node-chrome:latest
+  # image: selenium/node-chrome-debug:latest
   links:
    - seleniumhub:hub
    - helloworldwrite
