@@ -1,10 +1,5 @@
 #!/bin/sh
 
-# convenience methods during rapid testing
-docker-compose kill helloworldwrite helloworldread
-docker-compose rm --force helloworldwrite helloworldread
-docker-compose build helloworldwrite helloworldread
-
 # start the background containers
 docker-compose up --no-recreate -d compilers ipfs helloworldmaster
 sleep 5 # give the master a bit of time to get everything sorted
@@ -25,7 +20,7 @@ echo $ROOT_CONTRACT
 echo ""
 
 # start the reader
-docker-compose up --no-recreate helloworldread
-# @nodeguy not sure how you want to run the selenium tests, but its all ready for you now
-# docker-compose up -d --no-recreate seleniumnode
-# docker-compose run helloworldtest
+docker-compose up -d --no-recreate helloworldread
+
+docker-compose up -d --no-recreate seleniumnode
+docker-compose run --rm helloworldtest
