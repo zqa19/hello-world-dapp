@@ -23,4 +23,4 @@ echo ""
 docker-compose up -d --no-recreate helloworldread
 
 docker-compose up -d --no-recreate seleniumnode
-docker-compose run --rm helloworldtest
+docker-compose run helloworldtest
