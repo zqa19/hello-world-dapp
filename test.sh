@@ -10,7 +10,7 @@ sleep 30 # give the writer time to catch up with master and deploy contracts
 
 # grab the root contract from the writer
 helloworldwrite=$(docker-compose ps -q helloworldwrite)
-export ROOT_CONTRACT=$(docker exec $helloworldwrite epm plop vars | cut -d : -f 2)
+export ROOT_CONTRACT=$(docker logs $helloworldwrite | grep ROOT_CONTRACT | tail -n 1 | cut -c 16-57)
 
 # helpful for debugging
 echo ""
