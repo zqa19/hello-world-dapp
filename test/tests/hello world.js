@@ -2,7 +2,7 @@ module.exports = {
   "Hello World" : function (browser) {
     browser
       .useXpath()
-      .url('http://helloworld:3000/helloworld/')
+      .url('http://helloworld:3000/')
       .waitForElementVisible('//input[@id="filenameAdd"]', 10000)
 
       .execute(function () {
@@ -11,16 +11,19 @@ module.exports = {
         addFile = function (){
           var fName = document.getElementById('filenameAdd').value;
           var body = document.getElementById('input').value;
-
-          if(body === ""){
-            window.alert("There is nothing in the file input text area!");
+          
+          if(body === "" || fName === ""){
+            window.alert("You must provide a file name and some data.");
             return;
           }
 
-          // We send a POST request to the base url that ends with '/apis/helloworld/files'
-          // We don't worry about headers and stuff now (although we should).
-          var txt = sender.send("POST", baseUrl + "/files", JSON.stringify({name:fName,data:body}));
-          document.body.innerHTML += '<div id="alertPresent">File sent! You can now get it by its name.</div>';
+          sender.sendAsync("PUT", "/files/" + fName, body, function(request) {
+            if (request.status === 200) {
+              document.body.innerHTML += '<div id="alertPresent">File sent! You can now get it by its name.</div>';
+            } else {
+              window.alert("Failed to add file:\n" + request.responseText);
+            }
+          });          
         };
       })
 

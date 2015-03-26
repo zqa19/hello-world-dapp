@@ -4,14 +4,8 @@
   
   "selenium" : {
     "start_process" : false,
-    "server_path" : "",
-    "log_path" : "",
     "host" : "127.0.0.1",
-    "port" : 4444,
-    "cli_args" : {
-      "webdriver.chrome.driver" : "",
-      "webdriver.ie.driver" : ""
-    }
+    "port" : 4444
   },
 
   "test_settings" : {

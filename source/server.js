@@ -7,14 +7,14 @@ var
 
 app = express();
 
-app.use('/helloworld', express.static('public'));
+app.use('/', express.static('public'));
 
-app.get('/apis/helloworld/files/:name', function (req, res) {
-  res.send(JSON.stringify({data: encodeURI("https://erisindustries.com/")}));
+app.get('/files/:name', function (req, res) {
+  res.send("https://erisindustries.com/");
 });
 
-app.post('/apis/helloworld/files', function (req, res) {
-  res.send('Got a POST request');
+app.put('/files/:name', function (req, res) {
+  res.send('Got a PUT request');
 });
 
 server = app.listen(process.env.VCAP_APP_PORT, function () {
